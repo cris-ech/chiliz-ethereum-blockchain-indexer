@@ -1,0 +1,20 @@
+# MongoDB Credentials for local development
+
+MONGO_INITDB_ROOT_USERNAME=dev_user
+MONGO_INITDB_ROOT_PASSWORD=dev_pass
+
+# MongoDB URI for local service connections. Update credentials and database name as necessary.
+
+MONGO_URI=mongodb://dev_user:dev_pass@mongodb:27017/devdb?authSource=admin
+
+# RabbitMQ URL for local connections
+
+RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+
+# Database API endpoint for the consumer service to use in a local environment
+
+DB_API_ENDPOINT=http://dbapi:3001/
+
+# Infura api
+
+INFURA_WS_ENDPOINT=wss://mainnet.infura.io/ws/v3/INSERT_HERE_YOUR_INFURA_URL_FOR_WEBSOCKETS

@@ -1,0 +1,28 @@
+{
+  "name": "dbapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run preparation && node dist/app.js",
+    "postpreparation": "tsc && cp src/swagger_output.json dist/swagger_output.json",
+    "preparation": "npm run generate-swagger && npm run postpreparation",
+    "generate-swagger": "ts-node src/swagger.ts"
+  },
+  "author": "Cristian Ruz",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/swagger-ui-express": "^4.1.6",
+    "amqplib": "^0.10.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "mongoose": "^8.2.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "ts-node": "^10.9.2"
+  }
+}

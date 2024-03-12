@@ -1,0 +1,94 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}  # Reference the username from the .env file
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}  # Reference the password from the .env file
+    ports:
+      - "27017:27017"
+    volumes:
+      - db-data:/data/db
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  producer:
+    build: ./producer
+    init: true
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      INFURA_WS_ENDPOINT: ${INFURA_WS_ENDPOINT}
+      START_BLOCK: ${START_BLOCK}
+      DB_API_ENDPOINT: ${DB_API_ENDPOINT}
+    volumes:
+      - ./producer:/usr/src/app
+    user: "${NOT_ROOT_DOCKER_USER}"
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - dbapi
+      - queryapi
+  producer-events:
+    build: ./producer-events
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      INFURA_WS_ENDPOINT: ${INFURA_WS_ENDPOINT}
+    volumes:
+      - ./producer-events:/usr/src/app
+    user: "${NOT_ROOT_DOCKER_USER}"
+    depends_on:
+      - mongodb
+      - rabbitmq
+  consumer:
+    build: ./consumer
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      DB_API_ENDPOINT: ${DB_API_ENDPOINT}
+    volumes:
+      - ./consumer:/usr/src/app
+    user: "${NOT_ROOT_DOCKER_USER}"
+    depends_on:
+      - rabbitmq
+      - dbapi
+      - queryapi
+  dbapi:
+    build: ./dbapi
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: ${MONGO_URI}
+    volumes:
+      - ./dbapi:/usr/src/app
+    user: "${NOT_ROOT_DOCKER_USER}"
+    depends_on:
+      - mongodb
+  queryapi:
+    build: ./queryapi
+    ports:
+      - "3002:3002"
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      DB_API_ENDPOINT: ${DB_API_ENDPOINT}
+      INFURA_WS_ENDPOINT: ${INFURA_WS_ENDPOINT}
+    volumes:
+      - ./queryapi:/usr/src/app
+    user: "${NOT_ROOT_DOCKER_USER}"
+    depends_on:
+      - dbapi
+
+
+volumes:
+  db-data:
+  rabbitmq_data:
